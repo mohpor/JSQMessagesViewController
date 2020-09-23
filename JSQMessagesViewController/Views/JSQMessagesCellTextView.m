@@ -24,11 +24,11 @@
 {
     [super awakeFromNib];
     
-    self.textColor = [UIColor whiteColor];
+    self.textColor = [UIColor blackColor];
     self.editable = NO;
     self.selectable = YES;
-    self.userInteractionEnabled = YES;
-    self.dataDetectorTypes = UIDataDetectorTypeNone;
+    self.userInteractionEnabled = NO;//
+    self.dataDetectorTypes = UIDataDetectorTypeAll;
     self.showsHorizontalScrollIndicator = NO;
     self.showsVerticalScrollIndicator = NO;
     self.scrollEnabled = NO;
@@ -38,7 +38,7 @@
     self.contentOffset = CGPointZero;
     self.textContainerInset = UIEdgeInsetsZero;
     self.textContainer.lineFragmentPadding = 0;
-    self.linkTextAttributes = @{ NSForegroundColorAttributeName : [UIColor whiteColor],
+    self.linkTextAttributes = @{ NSForegroundColorAttributeName : [UIColor blueColor],
                                  NSUnderlineStyleAttributeName : @(NSUnderlineStyleSingle | NSUnderlinePatternSolid) };
 }
 

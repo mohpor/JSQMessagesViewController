@@ -18,18 +18,19 @@
 
 #import "JSQMessagesCollectionView.h"
 
-#import "JSQMessagesViewAccessoryButtonDelegate.h"
-
+#import "JSQMessagesCollectionViewFlowLayout.h"
 #import "JSQMessagesCollectionViewCellIncoming.h"
 #import "JSQMessagesCollectionViewCellOutgoing.h"
 
 #import "JSQMessagesTypingIndicatorFooterView.h"
 #import "JSQMessagesLoadEarlierHeaderView.h"
+#import "JSQMessagesEditCollectionOverlayView.h"
 
 #import "UIColor+JSQMessages.h"
 
 
-@interface JSQMessagesCollectionView () <JSQMessagesLoadEarlierHeaderViewDelegate>
+@interface JSQMessagesCollectionView ()
+<JSQMessagesLoadEarlierHeaderViewDelegate, JSQMessagesEditCollectionOverlayViewDelegate>
 
 - (void)jsq_configureCollectionView;
 
@@ -49,30 +50,35 @@
     [self setTranslatesAutoresizingMaskIntoConstraints:NO];
 
     self.backgroundColor = [UIColor whiteColor];
-    self.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
+    self.keyboardDismissMode = UIScrollViewKeyboardDismissModeNone;
     self.alwaysBounceVertical = YES;
     self.bounces = YES;
-
+    
     [self registerNib:[JSQMessagesCollectionViewCellIncoming nib]
-forCellWithReuseIdentifier:[JSQMessagesCollectionViewCellIncoming cellReuseIdentifier]];
-
+          forCellWithReuseIdentifier:[JSQMessagesCollectionViewCellIncoming cellReuseIdentifier]];
+    
     [self registerNib:[JSQMessagesCollectionViewCellOutgoing nib]
-forCellWithReuseIdentifier:[JSQMessagesCollectionViewCellOutgoing cellReuseIdentifier]];
-
+          forCellWithReuseIdentifier:[JSQMessagesCollectionViewCellOutgoing cellReuseIdentifier]];
+    
     [self registerNib:[JSQMessagesCollectionViewCellIncoming nib]
-forCellWithReuseIdentifier:[JSQMessagesCollectionViewCellIncoming mediaCellReuseIdentifier]];
-
+          forCellWithReuseIdentifier:[JSQMessagesCollectionViewCellIncoming mediaCellReuseIdentifier]];
+    
     [self registerNib:[JSQMessagesCollectionViewCellOutgoing nib]
-forCellWithReuseIdentifier:[JSQMessagesCollectionViewCellOutgoing mediaCellReuseIdentifier]];
-
+          forCellWithReuseIdentifier:[JSQMessagesCollectionViewCellOutgoing mediaCellReuseIdentifier]];
+    
     [self registerNib:[JSQMessagesTypingIndicatorFooterView nib]
-forSupplementaryViewOfKind:UICollectionElementKindSectionFooter
-  withReuseIdentifier:[JSQMessagesTypingIndicatorFooterView footerReuseIdentifier]];
-
+          forSupplementaryViewOfKind:UICollectionElementKindSectionFooter
+          withReuseIdentifier:[JSQMessagesTypingIndicatorFooterView footerReuseIdentifier]];
+    
     [self registerNib:[JSQMessagesLoadEarlierHeaderView nib]
-forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
-  withReuseIdentifier:[JSQMessagesLoadEarlierHeaderView headerReuseIdentifier]];
+          forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
+          withReuseIdentifier:[JSQMessagesLoadEarlierHeaderView headerReuseIdentifier]];
+    
+    [self registerNib:[JSQMessagesEditCollectionOverlayView nib]
+          forSupplementaryViewOfKind:kJSQCollectionElementKindEditOverlay
+          withReuseIdentifier:[JSQMessagesEditCollectionOverlayView editingReuseIdentifier]];
 
+    
     _typingIndicatorDisplaysOnLeft = YES;
     _typingIndicatorMessageBubbleColor = [UIColor jsq_messageBubbleLightGrayColor];
     _typingIndicatorEllipsisColor = [_typingIndicatorMessageBubbleColor jsq_colorByDarkeningColorWithValue:0.3f];
@@ -95,6 +101,18 @@ forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
     [self jsq_configureCollectionView];
 }
 
+#pragma mark - editing overlay view
+- (JSQMessagesEditCollectionOverlayView *)dequeueEditingOverlayViewForIndexPath:(NSIndexPath *)indexPath
+{
+    JSQMessagesEditCollectionOverlayView *editingView = [super dequeueReusableSupplementaryViewOfKind:kJSQCollectionElementKindEditOverlay
+                                                                                  withReuseIdentifier:[JSQMessagesEditCollectionOverlayView editingReuseIdentifier]
+                                                                                         forIndexPath:indexPath];
+    editingView.delegate = self;
+    editingView.indexPath = indexPath;
+    
+    return editingView;
+}
+
 #pragma mark - Typing indicator
 
 - (JSQMessagesTypingIndicatorFooterView *)dequeueTypingIndicatorFooterViewForIndexPath:(NSIndexPath *)indexPath
@@ -105,7 +123,6 @@ forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
 
     [footerView configureWithEllipsisColor:self.typingIndicatorEllipsisColor
                         messageBubbleColor:self.typingIndicatorMessageBubbleColor
-                                  animated:YES
                        shouldDisplayOnLeft:self.typingIndicatorDisplaysOnLeft
                          forCollectionView:self];
 
@@ -184,14 +201,15 @@ forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
                        withSender:sender];
 }
 
-- (void)messagesCollectionViewCellDidTapAccessoryButton:(JSQMessagesCollectionViewCell *)cell
+#pragma mark - Editing overlay view delegate
+
+- (void)editOverlayView:(JSQMessagesEditCollectionOverlayView *)overlayView activated:(BOOL)activated
 {
-    NSIndexPath *indexPath = [self indexPathForCell:cell];
+    NSIndexPath *indexPath = overlayView.indexPath;
     if (indexPath == nil) {
         return;
     }
-
-    [self.accessoryDelegate messageView:self didTapAccessoryButtonAtIndexPath:indexPath];
+    [self.delegate collectionView:self editingOverlayAtIndexPath:indexPath becomeSelected:activated];
 }
 
 @end

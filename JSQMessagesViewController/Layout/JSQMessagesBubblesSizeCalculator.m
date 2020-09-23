@@ -72,7 +72,7 @@
     cache.name = @"JSQMessagesBubblesSizeCalculator.cache";
     cache.countLimit = 200;
     return [self initWithCache:cache
-            minimumBubbleWidth:[UIImage jsq_bubbleCompactImage].size.width
+            minimumBubbleWidth: 160.0//[UIImage jsq_bubbleCompactImage].size.width
          usesFixedWidthBubbles:NO];
 }
 
@@ -133,7 +133,7 @@
         //  same as above, an extra 2 points of magix
         CGFloat finalWidth = MAX(stringSize.width + horizontalInsetsTotal, self.minimumBubbleWidth) + self.additionalInset;
 
-        finalSize = CGSizeMake(finalWidth, stringSize.height + verticalInsets);
+        finalSize = CGSizeMake(finalWidth, stringSize.height + 8 + verticalInsets);
     }
 
     [self.cache setObject:[NSValue valueWithCGSize:finalSize] forKey:@([messageData messageHash])];

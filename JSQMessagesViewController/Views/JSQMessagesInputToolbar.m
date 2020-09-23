@@ -45,34 +45,75 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 
 - (void)awakeFromNib
 {
+    
     [super awakeFromNib];
-    self.backgroundColor = [UIColor whiteColor];
+    [self setTranslatesAutoresizingMaskIntoConstraints:NO];
+    
     self.jsq_isObserving = NO;
-    self.sendButtonLocation = JSQMessagesInputSendButtonLocationRight;
-    self.enablesSendButtonAutomatically = YES;
-
+    self.sendButtonOnRight = YES;
+    
+    
     self.preferredDefaultHeight = 44.0f;
-    self.maximumHeight = NSNotFound;
-
+    self.maximumHeight = 180;
+    
+    self.backgroundColor = [UIColor clearColor];
+    self.layer.borderWidth = 0.0f;
+    self.clipsToBounds = YES;
+    [self setBackgroundImage:[UIImage new] forToolbarPosition:UIToolbarPositionAny barMetrics:UIBarMetricsDefault];
+    [self setShadowImage:[UIImage new] forToolbarPosition:UIToolbarPositionAny];
+    
     JSQMessagesToolbarContentView *toolbarContentView = [self loadToolbarContentView];
+//    CGRect frame = self.frame;
+//    frame.size.height = 44.0f;
+    
     toolbarContentView.frame = self.frame;
+    toolbarContentView.backgroundColor = [UIColor whiteColor];
+    toolbarContentView.clipsToBounds = YES;
+    //toolbarContentView.layer.cornerRadius = toolbarContentView.frame.size.height/2;
+    toolbarContentView.layer.borderWidth = 0.0f;
+    
     [self addSubview:toolbarContentView];
     [self jsq_pinAllEdgesOfSubview:toolbarContentView];
     [self setNeedsUpdateConstraints];
     _contentView = toolbarContentView;
-
+    
     [self jsq_addObservers];
-
-    JSQMessagesToolbarButtonFactory *toolbarButtonFactory = [[JSQMessagesToolbarButtonFactory alloc] initWithFont:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline]];
-    self.contentView.leftBarButtonItem = [toolbarButtonFactory defaultAccessoryButtonItem];
-    self.contentView.rightBarButtonItem = [toolbarButtonFactory defaultSendButtonItem];
-
-    [self updateSendButtonEnabledState];
-
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(textViewTextDidChangeNotification:)
-                                                 name:UITextViewTextDidChangeNotification
-                                               object:_contentView.textView];
+    
+    self.contentView.rightBarButtonItem = [JSQMessagesToolbarButtonFactory defaultSendButtonItem];
+   // self.contentView.leftBarButtonItem = [JSQMessagesToolbarButtonFactory fileButtonItem];
+    
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(leftLongPress)];
+    longPress.minimumPressDuration = 0.5;
+   // [self.contentView.timerBarButtonItem addGestureRecognizer:longPress];
+    
+    
+    [self toggleSendButtonEnabled];
+    
+    
+    
+    
+//    [super awakeFromNib];
+//    [self setTranslatesAutoresizingMaskIntoConstraints:NO];
+//
+//    self.jsq_isObserving = NO;
+//    self.sendButtonOnRight = YES;
+//
+//    self.preferredDefaultHeight = 44.0f;
+//    self.maximumHeight = NSNotFound;
+//
+//    JSQMessagesToolbarContentView *toolbarContentView = [self loadToolbarContentView];
+//    toolbarContentView.frame = self.frame;
+//    [self addSubview:toolbarContentView];
+//    [self jsq_pinAllEdgesOfSubview:toolbarContentView];
+//    [self setNeedsUpdateConstraints];
+//    _contentView = toolbarContentView;
+//
+//    [self jsq_addObservers];
+//
+//    self.contentView.leftBarButtonItem = [JSQMessagesToolbarButtonFactory defaultAccessoryButtonItem];
+//    self.contentView.rightBarButtonItem = [JSQMessagesToolbarButtonFactory defaultSendButtonItem];
+//
+//    [self toggleSendButtonEnabled];
 }
 
 - (JSQMessagesToolbarContentView *)loadToolbarContentView
@@ -86,7 +127,6 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 - (void)dealloc
 {
     [self jsq_removeObservers];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Setters
@@ -95,12 +135,6 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 {
     NSParameterAssert(preferredDefaultHeight > 0.0f);
     _preferredDefaultHeight = preferredDefaultHeight;
-}
-
-- (void)setEnablesSendButtonAutomatically:(BOOL)enablesSendButtonAutomatically
-{
-    _enablesSendButtonAutomatically = enablesSendButtonAutomatically;
-    [self updateSendButtonEnabledState];
 }
 
 #pragma mark - Actions
@@ -117,30 +151,30 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
 
 #pragma mark - Input toolbar
 
-- (void)updateSendButtonEnabledState
+- (void)toggleSendButtonEnabled
 {
-    if (!self.enablesSendButtonAutomatically) {
-        return;
+    BOOL hasText = [self.contentView.textView hasText];
+    UIImage *btnCameraImage = [UIImage imageNamed:@"ic_Camera"];
+    UIImage *btnSend = [UIImage imageNamed:@"Send_enable"];
+
+    if (self.sendButtonOnRight) {
+        if (hasText) {
+            [self.contentView.rightBarButtonItem setImage:btnSend forState:UIControlStateNormal];
+            self.contentView.rightBarButtonItem.tag = 101;
+        }else{
+            [self.contentView.rightBarButtonItem setImage:btnCameraImage forState:UIControlStateNormal];
+            self.contentView.rightBarButtonItem.tag = 102;
+        }
     }
-
-    BOOL enabled = [self.contentView.textView hasText];
-    switch (self.sendButtonLocation) {
-        case JSQMessagesInputSendButtonLocationRight:
-            self.contentView.rightBarButtonItem.enabled = enabled;
-            break;
-        case JSQMessagesInputSendButtonLocationLeft:
-            self.contentView.leftBarButtonItem.enabled = enabled;
-            break;
-        default:
-            break;
+    else {
+        if (hasText) {
+            [self.contentView.leftBarButtonItem setImage:btnSend forState:UIControlStateNormal];
+            self.contentView.leftBarButtonItem.tag = 101;
+        }else{
+            [self.contentView.leftBarButtonItem setImage:btnCameraImage forState:UIControlStateNormal];
+            self.contentView.leftBarButtonItem.tag = 102;
+        }
     }
-}
-
-#pragma mark - Notifications
-
-- (void)textViewTextDidChangeNotification:(NSNotification *)notification
-{
-    [self updateSendButtonEnabledState];
 }
 
 #pragma mark - Key-value observing
@@ -171,7 +205,7 @@ static void * kJSQMessagesInputToolbarKeyValueObservingContext = &kJSQMessagesIn
                                               forControlEvents:UIControlEventTouchUpInside];
             }
 
-            [self updateSendButtonEnabledState];
+            [self toggleSendButtonEnabled];
         }
     }
 }

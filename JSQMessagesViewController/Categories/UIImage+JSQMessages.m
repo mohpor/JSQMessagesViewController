@@ -105,8 +105,15 @@
     return [UIImage jsq_bubbleImageFromBundleWithName:@"pause"];
 }
 
-+ (UIImage *)jsq_shareActionImage
++ (UIImage *)jsq_defaultEditingActiveImage
 {
-    return [UIImage jsq_bubbleImageFromBundleWithName:@"share"];
+    return [UIImage jsq_bubbleImageFromBundleWithName:@"edit_active"];
 }
+
++ (UIImage *)jsq_defaultEditingInactiveImage
+{
+    return [UIImage jsq_bubbleImageFromBundleWithName:@"edit_inactive"];
+}
+
+
 @end

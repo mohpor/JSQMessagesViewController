@@ -138,6 +138,10 @@
     return [self.media mediaView] ?: [self.media mediaPlaceholderView];
 }
 
+//- (BOOL) isNotification {
+//    return NO;
+//}
+
 #pragma mark - NSCoding
 
 - (instancetype)initWithCoder:(NSCoder *)aDecoder

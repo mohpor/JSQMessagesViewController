@@ -22,32 +22,10 @@
 #import "UIImage+JSQMessages.h"
 #import "NSBundle+JSQMessages.h"
 
-@interface JSQMessagesToolbarButtonFactory ()
-
-@property (strong, nonatomic, readonly) UIFont *buttonFont;
-
-@end
 
 @implementation JSQMessagesToolbarButtonFactory
 
-- (instancetype)init
-{
-    return [self initWithFont:[UIFont preferredFontForTextStyle:UIFontTextStyleHeadline]];
-}
-
-- (instancetype)initWithFont:(UIFont *)font
-{
-    NSParameterAssert(font != nil);
-    
-    self = [super init];
-    if (self) {
-        _buttonFont = font;
-    }
-    
-    return self;
-}
-
-- (UIButton *)defaultAccessoryButtonItem
++ (UIButton *)defaultAccessoryButtonItem
 {
     UIImage *accessoryImage = [UIImage jsq_defaultAccessoryImage];
     UIImage *normalImage = [accessoryImage jsq_imageMaskedWithColor:[UIColor lightGrayColor]];
@@ -60,40 +38,47 @@
     accessoryButton.contentMode = UIViewContentModeScaleAspectFit;
     accessoryButton.backgroundColor = [UIColor clearColor];
     accessoryButton.tintColor = [UIColor lightGrayColor];
-    accessoryButton.titleLabel.font = self.buttonFont;
     
     accessoryButton.accessibilityLabel = [NSBundle jsq_localizedStringForKey:@"accessory_button_accessibility_label"];
 
     return accessoryButton;
 }
 
-- (UIButton *)defaultSendButtonItem
++ (UIButton *)defaultSendButtonItem
 {
-    NSString *sendTitle = [NSBundle jsq_localizedStringForKey:@"send"];
+    //NSString *sendTitle = [NSBundle jsq_localizedStringForKey:@"send"];
 
     UIButton *sendButton = [[UIButton alloc] initWithFrame:CGRectZero];
-    [sendButton setTitle:sendTitle forState:UIControlStateNormal];
-    [sendButton setTitleColor:[UIColor jsq_messageBubbleBlueColor] forState:UIControlStateNormal];
-    [sendButton setTitleColor:[[UIColor jsq_messageBubbleBlueColor] jsq_colorByDarkeningColorWithValue:0.1f] forState:UIControlStateHighlighted];
-    [sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
+    
+    UIImage *btnDisableImage = [UIImage imageNamed:@"ic_Camera"];
+    [sendButton setImage:btnDisableImage forState: UIControlStateNormal ];
+    sendButton.tag = 102;
+    //[sendButton setImage:btnDisableImage forState:UIControlStateDisabled];
+//    UIImage *btnEnableImage = [UIImage imageNamed:@"Send_enable"];
+//    [sendButton setImage:btnEnableImage forState:UIControlStateNormal | UIControlStateSelected | UIControlStateHighlighted | UIControlStateFocused];
+//    
+   // [sendButton setTitle:sendTitle forState:UIControlStateNormal];
+    [sendButton setTitleColor:[UIColor orangeColor] forState:UIControlStateNormal];
+    [sendButton setTitleColor:[[UIColor orangeColor] jsq_colorByDarkeningColorWithValue:0.1f] forState:UIControlStateHighlighted];
+    //[sendButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
 
-    sendButton.titleLabel.font = self.buttonFont;
-    sendButton.titleLabel.adjustsFontSizeToFitWidth = YES;
-    sendButton.titleLabel.minimumScaleFactor = 0.85f;
+    //sendButton.titleLabel.font = [UIFont boldSystemFontOfSize:17.0f];
+    //sendButton.titleLabel.adjustsFontSizeToFitWidth = YES;
+    //sendButton.titleLabel.minimumScaleFactor = 0.85f;
     sendButton.contentMode = UIViewContentModeCenter;
     sendButton.backgroundColor = [UIColor clearColor];
-    sendButton.tintColor = [UIColor jsq_messageBubbleBlueColor];
+    sendButton.tintColor = [UIColor orangeColor];
 
     CGFloat maxHeight = 32.0f;
 
-    CGRect sendTitleRect = [sendTitle boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, maxHeight)
-                                                   options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
-                                                attributes:@{ NSFontAttributeName : sendButton.titleLabel.font }
-                                                   context:nil];
+//    CGRect sendTitleRect = [sendTitle boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, maxHeight)
+//                                                   options:NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading
+//                                                attributes:@{ NSFontAttributeName : sendButton.titleLabel.font }
+//                                                   context:nil];
 
     sendButton.frame = CGRectMake(0.0f,
                                   0.0f,
-                                  CGRectGetWidth(CGRectIntegral(sendTitleRect)),
+                                  30.f,//CGRectGetWidth(CGRectIntegral(sendTitleRect)),
                                   maxHeight);
 
     return sendButton;

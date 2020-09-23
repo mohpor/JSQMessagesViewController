@@ -40,7 +40,13 @@ FOUNDATION_EXPORT const CGFloat kJSQMessagesCollectionViewCellLabelHeightDefault
  */
 FOUNDATION_EXPORT const CGFloat kJSQMessagesCollectionViewAvatarSizeDefault;
 
-NS_ASSUME_NONNULL_BEGIN
+
+/**
+ *  Overlay view kind for editing mode
+ */
+FOUNDATION_EXPORT NSString * const kJSQCollectionElementKindEditOverlay;
+
+
 
 /**
  *  The `JSQMessagesCollectionViewFlowLayout` is a concrete layout object that inherits 
@@ -188,6 +194,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (assign, nonatomic) NSUInteger cacheLimit;
 
 /**
+ *  Turn edit mode on/off
+ *
+ *  @discussion If `editing` is on, layout will present editing overlay view on top of each message cell.
+ */
+@property (nonatomic, assign) BOOL editing;
+
+/**
  *  Computes and returns the size of the `messageBubbleImageView` property of a `JSQMessagesCollectionViewCell`
  *  at the specified indexPath.
  *
@@ -211,5 +224,3 @@ NS_ASSUME_NONNULL_BEGIN
 - (CGSize)sizeForItemAtIndexPath:(NSIndexPath *)indexPath;
 
 @end
-
-NS_ASSUME_NONNULL_END
